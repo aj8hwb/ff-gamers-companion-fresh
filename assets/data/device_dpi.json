@@ -1,0 +1,19 @@
+{
+  "devices": {
+    "xiaomi": 490,
+    "redmi": 490,
+    "poco": 490,
+    "samsung": 460,
+    "vivo": 450,
+    "realme": 400,
+    "oppo": 390,
+    "oneplus": 480,
+    "asus": 480,
+    "honor": 460,
+    "huawei": 460,
+    "motorola": 450,
+    "nokia": 440,
+    "lg": 450,
+    "google": 480
+  }
+}
