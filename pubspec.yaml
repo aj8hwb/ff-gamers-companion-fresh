@@ -22,7 +22,7 @@ dependencies:
   ionicons: ^0.2.2
   
   # Fonts
-  google_fonts: ^8.0.2
+  google_fonts: ^6.2.1
   
   # HTTP & URL
   http: ^1.4.0
