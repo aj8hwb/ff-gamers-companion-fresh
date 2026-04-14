@@ -5,6 +5,8 @@ class AppColors {
   static const Color electricBlue = Color(0xFF00F0FF);
   static const Color neonPurple = Color(0xFFB026FF);
   static const Color neonPink = Color(0xFFFF007F);
+  static const Color neonGreen = Color(0xFF00FF88);
+  static const Color neonRed = Color(0xFFFF4444);
   static const Color darkGray = Color(0xFF1A1A1A);
   static const Color darkGray2 = Color(0xFF2D2D2D);
   static const Color white = Color(0xFFFFFFFF);
