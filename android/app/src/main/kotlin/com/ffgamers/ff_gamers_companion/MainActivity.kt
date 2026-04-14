@@ -14,6 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "ff_gamers/memory"
     private val PERMISSION_CHANNEL = "ff_gamers/permissions"
+    private val OVERLAY_CHANNEL = "ff_gamers/overlay"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -38,6 +39,52 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, OVERLAY_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "checkOverlayPermission" -> result.success(checkOverlayPermission())
+                "requestOverlayPermission" -> {
+                    requestOverlayPermission()
+                    result.success(true)
+                }
+                "startOverlay" -> {
+                    startOverlayService(call)
+                    result.success(true)
+                }
+                "stopOverlay" -> {
+                    stopOverlayService()
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+            }
+        }
+    }
+
+    private fun startOverlayService(call: io.flutter.plugin.common.MethodCall) {
+        val intent = android.content.Intent(this, OverlayService::class.java).apply {
+            action = "START"
+            putExtra("x", call.argument<Double>("x") ?: 0.5)
+            putExtra("y", call.argument<Double>("y") ?: 0.5)
+            putExtra("size", call.argument<Double>("size") ?: 50.0)
+            putExtra("color", call.argument<Int>("color") ?: 0xFF00FF88)
+            putExtra("isLocked", call.argument<Boolean>("isLocked") ?: false)
+        }
+        startService(intent)
+    }
+
+    private fun stopOverlayService() {
+        val intent = android.content.Intent(this, OverlayService::class.java).apply {
+            action = "STOP"
+        }
+        startService(intent)
+    }
+
+    private fun requestOverlayPermission() {
+        val intent = android.content.Intent(
+            android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            android.net.Uri.parse("package:$packageName")
+        )
+        startActivity(intent)
     }
 
     private fun getMemoryInfo(): Map<String, Any> {
