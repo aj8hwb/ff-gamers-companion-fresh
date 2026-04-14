@@ -78,7 +78,7 @@ class _ToolsTabState extends State<ToolsTab> {
               });
             },
             activeTrackColor: AppColors.electricBlue,
-            activeThumbColor: AppColors.white,
+            thumbColor: WidgetStateProperty.all(AppColors.white),
           ),
         ],
       ),
@@ -113,9 +113,10 @@ class _ToolsTabState extends State<ToolsTab> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: _crosshairLocked
-                      ? AppColors.neonPink
-                      : AppColors.neonPurple,
+                  color:
+                      _crosshairLocked
+                          ? AppColors.neonPink
+                          : AppColors.neonPurple,
                   width: 3,
                 ),
               ),
@@ -132,9 +133,8 @@ class _ToolsTabState extends State<ToolsTab> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _crosshairLocked
-                    ? AppColors.neonPink
-                    : AppColors.darkGray2,
+                backgroundColor:
+                    _crosshairLocked ? AppColors.neonPink : AppColors.darkGray2,
               ),
               child: Text(
                 _crosshairLocked ? 'LOCKED TO FIRE' : 'LOCK TO FIRE BTN',
@@ -252,7 +252,7 @@ class _ToolsTabState extends State<ToolsTab> {
             value: false,
             onChanged: (value) {},
             activeTrackColor: AppColors.neonPurple,
-            activeThumbColor: AppColors.white,
+            thumbColor: WidgetStateProperty.all(AppColors.white),
           ),
         ],
       ),
