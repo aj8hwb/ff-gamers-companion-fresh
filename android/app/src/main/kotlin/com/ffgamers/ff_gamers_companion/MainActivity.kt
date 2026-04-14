@@ -27,6 +27,9 @@ class MainActivity : FlutterActivity() {
                 "killBackgroundProcesses" -> result.success(killBackgroundProcesses())
                 "getInstalledGames" -> result.success(getInstalledGames())
                 "getAppUsageStats" -> result.success(getAppUsageStats())
+                "getDeviceInfo" -> result.success(getDeviceInfo())
+                "getDisplayInfo" -> result.success(getDisplayInfo())
+                "getRefreshRate" -> result.success(getRefreshRate())
                 else -> result.notImplemented()
             }
         }
@@ -284,5 +287,114 @@ class MainActivity : FlutterActivity() {
         val process = java.lang.Runtime.getRuntime().exec("su -c id")
         val output = java.io.BufferedReader(java.io.InputStreamReader(process.inputStream)).readLine()
         return output != null && output.contains("uid=0")
+    }
+
+    private fun getDeviceInfo(): Map<String, Any> {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val memInfo = ActivityManager.MemoryInfo()
+        activityManager.getMemoryInfo(memInfo)
+        
+        val totalRAM = (memInfo.totalMem / (1024 * 1024 * 1024)).toInt()
+        val availableRAM = (memInfo.availMem / (1024 * 1024 * 1024)).toDouble()
+        
+        val modelName = getFriendlyDeviceName(Build.MODEL)
+        val processor = getProcessorName()
+        val chipset = getChipset()
+        
+        return mapOf(
+            "model" to modelName,
+            "brand" to Build.BRAND.replaceFirstChar { it.uppercase() },
+            "device" to Build.DEVICE,
+            "hardware" to Build.HARDWARE,
+            "processor" to processor,
+            "chipset" to chipset,
+            "totalRAMGB" to totalRAM,
+            "availableRAMGB" to availableRAM,
+            "androidVersion" to Build.VERSION.RELEASE,
+            "sdkVersion" to Build.VERSION.SDK_INT,
+        )
+    }
+
+    private fun getFriendlyDeviceName(model: String): String {
+        val friendlyNames = mapOf(
+            "SM-G998" to "Samsung Galaxy S21 Ultra",
+            "SM-G991" to "Samsung Galaxy S21",
+            "SM-F936" to "Samsung Galaxy Z Fold 3",
+            "SM-A525" to "Samsung Galaxy A52",
+            "RMX3081" to "Realme 8",
+            "RMX3085" to "Realme 8 5G",
+            "RMX2195" to "Realme C3",
+            "M2006C3MG" to "Redmi 9C",
+            "M2101K7AG" to "Redmi Note 10",
+            "M2104K10I" to "POCO X3 Pro",
+            "V2111" to "Vivo Y33s",
+            "CPH2197" to "Oppo A15",
+            "RMX2101" to "Realme 7",
+            "Infinix X695" to "Infinix Note 10 Pro",
+            "Tecno KF6" to "Tecno Spark 8",
+        )
+        return friendlyNames[model] ?: model
+    }
+
+    private fun getProcessorName(): String {
+        return try {
+            val cpuInfo = java.io.File("/proc/cpuinfo").readText()
+            val hardwareLine = cpuInfo.lines().find { it.startsWith("Hardware") }
+            hardwareLine?.substringAfter(":")?.trim() 
+                ?: java.lang.Runtime.getRuntime().availableProcessors().toString() + " Cores"
+        } catch (e: Exception) {
+            "${java.lang.Runtime.getRuntime().availableProcessors()} Cores"
+        }
+    }
+
+    private fun getChipset(): String {
+        return when {
+            Build.HARDWARE.contains("qcom") || Build.HARDWARE.contains("snapdragon") -> "Qualcomm Snapdragon"
+            Build.HARDWARE.contains("mt") || Build.HARDWARE.contains("mediatek") -> "MediaTek"
+            Build.HARDWARE.contains("exynos") -> "Samsung Exynos"
+            Build.HARDWARE.contains("kirin") -> "HiSilicon Kirin"
+            Build.HARDWARE.contains("unisoc") || Build.HARDWARE.contains("spreadtrum") -> "UNISOC"
+            else -> "Unknown"
+        }
+    }
+
+    private fun getDisplayInfo(): Map<String, Any> {
+        val display = windowManager.defaultDisplay
+        val metrics = android.util.DisplayMetrics()
+        display.getRealMetrics(metrics)
+        
+        val densityDpi = metrics.densityDpi
+        val density = metrics.density
+        val widthPx = metrics.widthPixels
+        val heightPx = metrics.heightPixels
+        
+        return mapOf(
+            "widthPx" to widthPx,
+            "heightPx" to heightPx,
+            "densityDpi" to densityDpi,
+            "density" to density,
+            "xdpi" to metrics.xdpi,
+            "ydpi" to metrics.ydpi,
+            "refreshRate" to display.refreshRate,
+        )
+    }
+
+    private fun getRefreshRate(): Map<String, Any> {
+        val display = windowManager.defaultDisplay
+        val supportedModes = display.supportedModes
+        val currentMode = display.mode
+        
+        val modes = supportedModes.map { mode ->
+            mapOf(
+                "width" to mode.physicalWidth,
+                "height" to mode.physicalHeight,
+                "refreshRate" to mode.refreshRate
+            )
+        }
+        
+        return mapOf(
+            "currentRefreshRate" to currentMode.refreshRate,
+            "supportedModes" to modes
+        )
     }
 }
